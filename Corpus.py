@@ -21,7 +21,11 @@ class Corpus:
 
         self.ndoc += 1
         self.id2doc[self.ndoc] = doc
-
+        
+    def tri_alphabetique(self, n_docs=-1):
+        docs = list(self.id2doc.values())
+        docs = list(sorted(docs, key=lambda x: x.titre.lower()))[:n_docs]
+        return docs
 # =============== 2.8 : REPRESENTATION ===============
     def show(self, n_docs=-1, tri="abc"):
         docs = list(self.id2doc.values())
