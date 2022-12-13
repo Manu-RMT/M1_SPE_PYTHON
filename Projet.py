@@ -48,11 +48,7 @@ for i, post in enumerate(hot_posts):
     docs.append(post.selftext.replace("\n", " "))
     docs_bruts.append(("Reddit", post))
 
-# print(docs)
-
 # =============== 1.2 : ArXiv ===============
-# Libraries
-
 
 # Paramètres
 query_terms = ["clustering", "Dirichlet"]
@@ -65,7 +61,6 @@ data = urllib.request.urlopen(url)
 # Format dict (OrderedDict)
 data = xmltodict.parse(data.read().decode('utf-8'))
 
-# showDictStruct(data)
 
 # Ajout résumés à la liste
 for i, entry in enumerate(data["feed"]["entry"]):
@@ -86,16 +81,10 @@ for i, doc in enumerate(docs):
 
 longueChaineDeCaracteres = " ".join(docs)
 
-# =============== PARTIE 2 =============
-# =============== 2.1, 2.2 : CLASSE DOCUMENT ===============
-
-# =============== 2.3 : MANIPS ===============
-
 
 collection = []
 for nature, doc in docs_bruts:
     if nature == "ArXiv":  # Les fichiers de ArXiv ou de Reddit sont pas formatés de la même manière à ce stade.
-        # showDictStruct(doc)
 
         titre = doc["title"].replace('\n', '')  # On enlève les retours à la ligne
         try:
@@ -111,7 +100,6 @@ for nature, doc in docs_bruts:
         collection.append(doc_classe)  # Ajout du Document à la liste.
 
     elif nature == "Reddit":
-        # print("".join([f"{k}: {v}\n" for k, v in doc.__dict__.items()]))
         titre = doc.title.replace("\n", '')
         auteur = str(doc.author)
         date = datetime.datetime.fromtimestamp(doc.created).strftime("%Y/%m/%d")
@@ -125,8 +113,6 @@ for nature, doc in docs_bruts:
 id2doc = {}
 for i, doc in enumerate(collection):
     id2doc[i] = doc.titre
-
-# =============== 2.4, 2.5 : CLASSE AUTEURS ===============
 
 
 # =============== 2.6 : DICT AUTEURS ===============
@@ -142,7 +128,7 @@ for doc in collection:
         aut2id[doc.auteur] = num_auteurs_vus
 
     authors[aut2id[doc.auteur]].add(doc.texte)
-
+    
 # =============== 2.7, 2.8 : CORPUS ===============
 
 corpus = Corpus("Mon corpus")
@@ -150,8 +136,10 @@ corpus = Corpus("Mon corpus")
 # Construction du corpus à partir des documents
 for doc in collection:
     corpus.add(doc)
-# corpus.show(tri="abc")
 
+print("---------------- affichage du corpus -------------- \n")
+print(corpus.values_corpus())
+print("---------------- x -------------- \n")
 # =============== 2.9 : SAUVEGARDE ===============
 
 # save valeur dans un CSV
