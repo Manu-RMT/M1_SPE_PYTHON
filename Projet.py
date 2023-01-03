@@ -26,20 +26,15 @@ def showDictStruct(d):
     recursivePrint(d, 1)
 
 def load_data(path_file :str):
-    array_corpus = []
-    with open(path_file,'r',encoding="utf-8")as file:     
-        csvFile = csv.reader(file)
-        for lines in csvFile:
-            array_corpus.append(lines[0])
-        return array_corpus 
+    df = pd.read_csv('corpus.csv', sep=';',engine='python')
+    return df
 
 def nombre_apparition_mot(): 
     corpus = load_data('corpus.csv')    
-    
-    tokenized_corpus = [doc.lower().split(" ") for doc in corpus]
-    model = fastbm25(tokenized_corpus)
-    query = "Spanish"
-    result = model.top_k_sentence(query,k=1)
+    # tokenized_corpus = [doc.lower().split(" ") for doc in corpus]
+    # model = fastbm25(tokenized_corpus)
+    # query = "Spanish"
+    # result = model.top_k_sentence(query,k=1)
     #print(result)
     
     # tokenized_corpus = [doc.split(" ") for doc in arary_corpus.shape(1)]
@@ -62,7 +57,7 @@ def main():
         
         # Requête
         limit = 100
-        hot_posts = reddit.subreddit('climate').hot(limit=limit)  # .top("all", limit=limit)#
+        hot_posts = reddit.subreddit('football').hot(limit=limit)  # .top("all", limit=limit)#
         
         # Récupération du texte
         docs = []
@@ -73,19 +68,19 @@ def main():
             if afficher_cles:  # Pour connaître les différentes variables et leur contenu
                 for k, v in post.__dict__.items():
                     pass
-                    print(k, ":", v)
+                    print(k, ":", v)    
         
-            if post.selftext != "":  # Osef des posts sans texte
-                pass
-                # print(post.selftext)
+            if post.selftext == "":  
+                continue
+            
             docs.append(post.selftext.replace("\n", " "))
             docs_bruts.append(("Reddit", post))
         
         # =============== 1.2 : ArXiv ===============
         
         # Paramètres
-        query_terms = ["Coronavirus", "football"]
-        max_results = 100
+        query_terms = ["football"]
+        max_results = len(docs) # recupère autant d'arxiv que de reddit
         
         # Requête
         url = f'http://export.arxiv.org/api/query?search_query=all:{"+".join(query_terms)}&start=0&max_results={max_results}'
@@ -119,7 +114,7 @@ def main():
         for nature, doc in docs_bruts:
             if nature == "ArXiv":  # Les fichiers de ArXiv ou de Reddit sont pas formatés de la même manière à ce stade.
         
-                titre = doc["title"].replace('\n', '')  # On enlève les retours à la ligne
+                titre = doc["title"].replace('\n', '').replace('"','')  # On enlève les retours à la ligne
                 try:
                     authors = ", ".join(
                         [a["name"] for a in doc["author"]])  # On fait une liste d'auteurs, séparés par une virgule
@@ -129,17 +124,17 @@ def main():
                 date = datetime.datetime.strptime(doc["published"], "%Y-%m-%dT%H:%M:%SZ").strftime(
                     "%Y/%m/%d")  # Formatage de la date en année/mois/jour avec librairie datetime
         
-                doc_classe = Document(titre, authors, date, doc["id"], summary)  # Création du Document
+                doc_classe = Document(nature, titre, authors, date, doc["id"], summary)  # Création du Document
                 collection.append(doc_classe)  # Ajout du Document à la liste.
         
             elif nature == "Reddit":
-                titre = doc.title.replace("\n", '')
+                titre = doc.title.replace("\n", '').replace('"','')
                 auteur = str(doc.author)
                 date = datetime.datetime.fromtimestamp(doc.created).strftime("%Y/%m/%d")
                 url = "https://www.reddit.com/" + doc.permalink
                 texte = doc.selftext.replace("\n", "")
         
-                doc_classe = Document(titre, auteur, date, url, texte)
+                doc_classe = Document(nature, titre, auteur, date, url, texte)
         
                 collection.append(doc_classe)
         
@@ -171,16 +166,22 @@ def main():
             corpus.add(doc)
             
         corpus_trie = corpus.tri_alphabetique()
-                
-        print("---------------- affichage du corpus -------------- \n")
-        print(corpus.values_corpus())
+               
+        print("---------------- affichage du corpus -------------- \n")    
+        print(corpus.__repr__())
         print("---------------- x -------------- \n")
         # =============== 2.9 : SAUVEGARDE ===============
         
-       
-        df = pd.DataFrame(corpus_trie)
-        df.to_csv(r'corpus.csv',index=False)
-            
+        nature=corpus.values_corpus()[0]
+        titre=corpus.values_corpus()[1]
+        Auteur=corpus.values_corpus()[2]
+        Date=corpus.values_corpus()[3]
+        url=corpus.values_corpus()[4]
+        texte=corpus.values_corpus()[5]
+        
+        df = pd.DataFrame(zip(nature,titre,Auteur,Date,url,texte), columns=['Nature','Titre','Auteur','Date','URL','Texte'])
+        df.to_csv(r'corpus.csv',index=False,sep=';')
+             
         print("Sauvegarde du corpus dans le CSV")
     else:
         print("\n Le fichier contenant le corpus existe deja, pas de sauvegarde de document \n")

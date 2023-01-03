@@ -24,7 +24,7 @@ class Corpus:
         
     def tri_alphabetique(self, n_docs=-1):
         docs = list(self.id2doc.values())
-        docs = list(sorted(docs, key=lambda x: x.titre.lower()))[:n_docs]
+        docs = list(sorted(docs, key=lambda x: x.titre.lower()))
         return docs
 
     def show(self, n_docs=-1, tri="abc"):
@@ -43,7 +43,19 @@ class Corpus:
         return "\n".join(list(map(str, docs)))
 
     def values_corpus(self):
-        return self.id2doc.values()
+        lst1 = []
+        lst2 = []
+        lst3 = []
+        lst4 = []
+        lst5 = []
+        lst6 = []
+        for key in self.id2doc.keys():
+            lst1.append(self.id2doc[key].nature)
+            lst2.append(self.id2doc[key].titre)
+            lst3.append(self.id2doc[key].auteur)
+            lst4.append(self.id2doc[key].date)
+            lst5.append(self.id2doc[key].url)
+            lst6.append(self.id2doc[key].texte)
+        return lst1,lst2,lst3,lst4,lst5,lst6      
         
-
 
