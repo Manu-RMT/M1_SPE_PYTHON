@@ -1,6 +1,5 @@
 import praw
 import urllib.request
-import xmltodict
 from Classes import Document
 from Classes import Author
 from Corpus import Corpus
@@ -10,7 +9,6 @@ import datetime
 import pickle
 import pandas as pd
 import os.path
-import csv
 
 
 # Fonction affichage hiérarchie dict
