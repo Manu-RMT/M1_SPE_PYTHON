@@ -1,15 +1,19 @@
 import praw
 import urllib.request
-from Classes import Document
-from Classes import Author
-from Corpus import Corpus
-from os import path
-from fastbm25 import fastbm25
+import xmltodict
 import datetime
 import pickle
 import pandas as pd
 import os.path
-
+import csv
+import re
+import nltk
+import math
+from Classes import Document
+from Classes import Author
+from Corpus import Corpus
+from os import path
+from nltk.corpus import stopwords
 
 # Fonction affichage hiérarchie dict
 def showDictStruct(d):
@@ -24,24 +28,107 @@ def showDictStruct(d):
     recursivePrint(d, 1)
 
 def load_data(path_file :str):
-    df = pd.read_csv('corpus.csv', sep=';',engine='python')
-    return df
+     return pd.read_csv('corpus.csv',sep=';')
+ 
+     
+def crea_tf_tfxidf(df):
+    nb_docs = len(df)
+    tf={} #Dictionnaire de stockage des nombres d'apparition (articles reddit)
+    doc_apparition = {} #Dictionnaire de stockage du nombre de documents dans lequels les mots apparaissent (articles reddit)
+    tfxidf = {} #Dictionnaire de stockage des tfxidf (articles reddit)
+    df['Words'] = df.iloc[:,0].copy()
+    
+    for i,texte in enumerate(df['Texte']):
+        #Tokenization du texte et suppression des mots irrelevants
+        texte = re.sub(r'[.,"\'-?:!;]','',texte) #Suppression des signes de ponctuation
+        texte = texte.lower() #Transformation du texte en minuscule entièrement
+        stripped = texte.split() #Découpage du texte
+        words = [word for word in stripped if word.isalpha()] #Suppression des chiffres
+        stop_words = set(stopwords.words('english')) #Enregistrement des stopwords anglais (the, for, in etc...)
+        words = [w for w in words if not w in stop_words] #Suppression des stopwords 
+        tokens = [word for word in words if len(word)>1] #Suppression des mots constitués de 1 seul caractère 
+        df['Words'][i] = tokens #On range les mots dans une colonne du dataframe
+        for token in tokens: #Parcours des mots retenus
+            if token in tf.keys(): #Si le mot existe déjà dans le dictionnaire
+                tf[token] += 1 #On augmente le term-frequency de 1
+            else:
+                tf[token] = 1 #Sinon on initialise le term_frequency à 1
+    
+        for word in tf.keys():
+            doc_apparition[word] = 0 #Initialisation du nb de docs dans lequel il apparaît à 0
+            for words_doc in df['Words']:
+                if word in words_doc: #Si le mot apparaît dans les mots tokenizés d'un document
+                    doc_apparition[word] += 1 #On ajoute 1
+                    
+            tfxidf[word] = math.log((1+nb_docs)/(1+doc_apparition[word]))
+    
+    return tf, tfxidf
 
-def nombre_apparition_mot(): 
+def sort_tfxidf(dictionnaire, nb_words, desc):
+    compteur = 0
+    words = []
+    tfxidf = []
+    for word,value in dict(sorted(dictionnaire.items(), key = lambda item: item[1], reverse = desc)).items(): #liste qui trie les plus petits dfxidf
+        compteur += 1
+        print ("%s: %s" % (word, value))
+        words.append(word)
+        tfxidf.append(value)
+        if compteur >= nb_words: #limite à 5
+            break
+    return words, tfxidf
+
+
+def traitement_corpus(): 
+    
     corpus = load_data('corpus.csv')    
-    # tokenized_corpus = [doc.lower().split(" ") for doc in corpus]
-    # model = fastbm25(tokenized_corpus)
-    # query = "Spanish"
-    # result = model.top_k_sentence(query,k=1)
-    #print(result)
+    data_reddit = corpus[corpus['Nature']=='Reddit']
+    data_arxiv = corpus[corpus['Nature']=='ArXiv']
+      
+    """Comparaisons top 10 tf/tfxidf --> A revoir"""
+    tf_arxiv, tfxidf_arxiv = crea_tf_tfxidf(data_arxiv) #Calcul des td, tfxidf de arxiv
     
-    # tokenized_corpus = [doc.split(" ") for doc in arary_corpus.shape(1)]
-    # print(tokenized_corpus)
-    # model = fastbm25(tokenized_corpus)
-    # query = "football"
-    # result = model.top_k_sentence(query,k=1)
-    # print(result)
+    top10_idf_arxiv = list(sort_tfxidf(tfxidf_arxiv,10,True)) #Récupération du top10 des tfxidf de arxiv
     
+    tf_reddit, tfxidf_reddit = crea_tf_tfxidf(data_reddit) #Calcul des td, tfxidf de reddit
+    
+    top10_idf_arxiv.append([0]*len(top10_idf_arxiv[0])) #Initialisation d'une nouvelle colonne
+    
+    for i, mot in enumerate(top10_idf_arxiv[0]): #Boucle sur les mots du top10 arxiv
+        if mot in tfxidf_reddit.keys(): #Si présent dans le vocabulaire de reddit
+            top10_idf_arxiv[-1][i] = tfxidf_reddit[mot] #On note le tfxidf de reddit dans la colonne créée avant la boucle
+    
+    print(top10_idf_arxiv)
+    top10_idf_arxiv[2] = [b - a for b, a in zip(top10_idf_arxiv[1],top10_idf_arxiv[2])]
+    
+    import matplotlib.pyplot as plt
+    plt.plot([1,2,3,4,5,6,7,8,9,10], top10_idf_arxiv[2])
+    """Comparaisons top 10 tf/tfxidf"""
+    
+    """Comparaison taille de vocab"""
+    print("Taille du vocabulaire des documents Arxvi: "+str(len(tf_arxiv))+" mots")
+    print("Taille du vocabulaire des documents Reddit: "+str(len(tf_reddit))+" mots")
+    """Comparaison taille de vocab"""
+    
+    """Affichage du top tfxidf des document Reddit"""
+    top20_idf_reddit = list(sort_tfxidf(tfxidf_reddit,20,True))
+    print("\n20 mots avec le plus grand tfxidf :")
+    print(top20_idf_reddit[0])
+    """Affichage du top tfxidf des document Reddit"""
+    
+    
+    """Affichage du top tfxidf des document Arxiv"""
+    top20_idf_arxiv = list(sort_tfxidf(tfxidf_arxiv,20,True))
+    print("\n20 mots avec le plus grand tfxidf :")
+    print(top20_idf_arxiv[0])
+    """Affichage du top tfxidf des document Arxiv"""
+    
+    """Comptage des mots appartenants aux vocabulaire Arxiv et Reddit"""
+    nb_voc_commun = 0
+    for word in tfxidf_arxiv.keys():
+        if word in tfxidf_reddit.keys():
+            nb_voc_commun += 1
+    """Comptage des mots appartenants aux vocabulaire Arxiv et Reddit"""
+    return nb_voc_commun
 
 # Programme qui sera lancer lorsqu'on clique sur le bouton de l'interface
 def main():
@@ -186,6 +273,6 @@ def main():
     
    
     # Traitement corpus 
-    nombre_apparition_mot()         
+    traitement_corpus()         
 
 main()

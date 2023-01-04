@@ -4,3 +4,6 @@ pandas
 xmltodict
 dash
 datetime
+math
+re
+nltk

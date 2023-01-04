@@ -1,6 +1,6 @@
 from dash import Dash, dash_table,html,dcc,Input, Output, State
 import pandas as pd
-
+import Projet as pr 
 
 app = Dash(__name__)
 app.layout = html.Div(children=[
