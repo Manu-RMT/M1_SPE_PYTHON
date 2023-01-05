@@ -1,9 +1,10 @@
-praw
-pickle
-pandas
-xmltodict
 dash
+dash_bootstrap_components
 datetime
 math
-re
 nltk
+pandas
+pickle
+praw
+re
+xmltodict

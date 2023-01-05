@@ -77,61 +77,90 @@ def sort_tfxidf(dictionnaire, nb_words, desc):
             break
     return words, tfxidf
 
+def decoupage(df,value):
+    df['Words'] = df.iloc[:,0].copy()
+    data_ct=[] #Liste qui va contenir les documents contenant le mot 'value'
+    data_nct=[] #Liste qui va contenir les documents qui ne contiennent pas le mot 'value'
+    
+    for i,texte in enumerate(df['Texte']):
+        #Tokenization du texte et suppression des mots irrelevants
+        texte = re.sub(r'[.,"\'-?:!;]','',texte) #Suppression des signes de ponctuation
+        texte = texte.lower() #Transformation du texte en minuscule entièrement
+        stripped = texte.split() #Découpage du texte
+        words = [word for word in stripped if word.isalpha()] #Suppression des chiffres
+        stop_words = set(stopwords.words('english')) #Enregistrement des stopwords anglais (the, for, in etc...)
+        words = [w for w in words if not w in stop_words] #Suppression des stopwords 
+        tokens = [word for word in words if len(word)>1] #Suppression des mots constitués de 1 seul caractère 
+        df['Words'][i] = tokens #On range les mots dans une colonne du dataframe
+        
+        if df['Words'][i].count(value.lower())>0: #Si le vocabulaire du document contient le mot 'value'
+            data_ct.append(df.iloc[i]) #On insère le document dans data_ct
+        else:
+            data_nct.append(df.iloc[i]) #On insère le document dans data_nct
+    
 
-def traitement_corpus(): 
+    data_ct_value = pd.DataFrame(data_ct)
+    data_nct_value = pd.DataFrame(data_nct)
+            
+    return data_ct_value, data_nct_value
+
+def traitement_corpus(value_input): 
     
-    corpus = load_data('corpus.csv')    
-    data_reddit = corpus[corpus['Nature']=='Reddit']
-    data_arxiv = corpus[corpus['Nature']=='ArXiv']
+    corpus = load_data('corpus.csv') 
+    contain_value,no_contain_value = decoupage(corpus, value_input)
+    return len(contain_value),len(no_contain_value)
+    
+    # data_reddit = corpus[corpus['Nature']=='Reddit']
+    # data_arxiv = corpus[corpus['Nature']=='ArXiv']
       
-    """Comparaisons top 10 tf/tfxidf --> A revoir"""
-    tf_arxiv, tfxidf_arxiv = crea_tf_tfxidf(data_arxiv) #Calcul des td, tfxidf de arxiv
+    # """Comparaisons top 10 tf/tfxidf --> A revoir"""
+    # tf_arxiv, tfxidf_arxiv = crea_tf_tfxidf(data_arxiv) #Calcul des td, tfxidf de arxiv
     
-    top10_idf_arxiv = list(sort_tfxidf(tfxidf_arxiv,10,True)) #Récupération du top10 des tfxidf de arxiv
+    # top10_idf_arxiv = list(sort_tfxidf(tfxidf_arxiv,10,True)) #Récupération du top10 des tfxidf de arxiv
     
-    tf_reddit, tfxidf_reddit = crea_tf_tfxidf(data_reddit) #Calcul des td, tfxidf de reddit
+    # tf_reddit, tfxidf_reddit = crea_tf_tfxidf(data_reddit) #Calcul des td, tfxidf de reddit
     
-    top10_idf_arxiv.append([0]*len(top10_idf_arxiv[0])) #Initialisation d'une nouvelle colonne
+    # top10_idf_arxiv.append([0]*len(top10_idf_arxiv[0])) #Initialisation d'une nouvelle colonne
     
-    for i, mot in enumerate(top10_idf_arxiv[0]): #Boucle sur les mots du top10 arxiv
-        if mot in tfxidf_reddit.keys(): #Si présent dans le vocabulaire de reddit
-            top10_idf_arxiv[-1][i] = tfxidf_reddit[mot] #On note le tfxidf de reddit dans la colonne créée avant la boucle
+    # for i, mot in enumerate(top10_idf_arxiv[0]): #Boucle sur les mots du top10 arxiv
+    #     if mot in tfxidf_reddit.keys(): #Si présent dans le vocabulaire de reddit
+    #         top10_idf_arxiv[-1][i] = tfxidf_reddit[mot] #On note le tfxidf de reddit dans la colonne créée avant la boucle
     
-    print(top10_idf_arxiv)
-    top10_idf_arxiv[2] = [b - a for b, a in zip(top10_idf_arxiv[1],top10_idf_arxiv[2])]
+    # print(top10_idf_arxiv)
+    # top10_idf_arxiv[2] = [b - a for b, a in zip(top10_idf_arxiv[1],top10_idf_arxiv[2])]
     
-    import matplotlib.pyplot as plt
-    plt.plot([1,2,3,4,5,6,7,8,9,10], top10_idf_arxiv[2])
-    """Comparaisons top 10 tf/tfxidf"""
+    # import matplotlib.pyplot as plt
+    # plt.plot([1,2,3,4,5,6,7,8,9,10], top10_idf_arxiv[2])
+    # """Comparaisons top 10 tf/tfxidf"""
     
-    """Comparaison taille de vocab"""
-    print("Taille du vocabulaire des documents Arxvi: "+str(len(tf_arxiv))+" mots")
-    print("Taille du vocabulaire des documents Reddit: "+str(len(tf_reddit))+" mots")
-    """Comparaison taille de vocab"""
+    # """Comparaison taille de vocab"""
+    # print("Taille du vocabulaire des documents Arxvi: "+str(len(tf_arxiv))+" mots")
+    # print("Taille du vocabulaire des documents Reddit: "+str(len(tf_reddit))+" mots")
+    # """Comparaison taille de vocab"""
     
-    """Affichage du top tfxidf des document Reddit"""
-    top20_idf_reddit = list(sort_tfxidf(tfxidf_reddit,20,True))
-    print("\n20 mots avec le plus grand tfxidf :")
-    print(top20_idf_reddit[0])
-    """Affichage du top tfxidf des document Reddit"""
+    # """Affichage du top tfxidf des document Reddit"""
+    # top20_idf_reddit = list(sort_tfxidf(tfxidf_reddit,20,True))
+    # print("\n20 mots avec le plus grand tfxidf :")
+    # print(top20_idf_reddit[0])
+    # """Affichage du top tfxidf des document Reddit"""
     
     
-    """Affichage du top tfxidf des document Arxiv"""
-    top20_idf_arxiv = list(sort_tfxidf(tfxidf_arxiv,20,True))
-    print("\n20 mots avec le plus grand tfxidf :")
-    print(top20_idf_arxiv[0])
-    """Affichage du top tfxidf des document Arxiv"""
+    # """Affichage du top tfxidf des document Arxiv"""
+    # top20_idf_arxiv = list(sort_tfxidf(tfxidf_arxiv,20,True))
+    # print("\n20 mots avec le plus grand tfxidf :")
+    # print(top20_idf_arxiv[0])
+    # """Affichage du top tfxidf des document Arxiv"""
     
-    """Comptage des mots appartenants aux vocabulaire Arxiv et Reddit"""
-    nb_voc_commun = 0
-    for word in tfxidf_arxiv.keys():
-        if word in tfxidf_reddit.keys():
-            nb_voc_commun += 1
-    """Comptage des mots appartenants aux vocabulaire Arxiv et Reddit"""
-    return nb_voc_commun
+    # """Comptage des mots appartenants aux vocabulaire Arxiv et Reddit"""
+    # nb_voc_commun = 0
+    # for word in tfxidf_arxiv.keys():
+    #     if word in tfxidf_reddit.keys():
+    #         nb_voc_commun += 1
+    # """Comptage des mots appartenants aux vocabulaire Arxiv et Reddit"""
+    # return nb_voc_commun
 
 # Programme qui sera lancer lorsqu'on clique sur le bouton de l'interface
-def main():
+def main(value_input):
     # si le corpus n'existe pas encore on le charge dans le CSV
     file = path.exists('corpus.csv')
     if not file :
@@ -141,7 +170,7 @@ def main():
                              user_agent='td3_python')
         
         # Requête
-        limit = 100
+        limit = 1000
         hot_posts = reddit.subreddit('football').hot(limit=limit)  # .top("all", limit=limit)#
         
         # Récupération du texte
@@ -273,6 +302,5 @@ def main():
     
    
     # Traitement corpus 
-    traitement_corpus()         
-
-main()
+    x,y = traitement_corpus(value_input)         
+    return x,y

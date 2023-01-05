@@ -24,6 +24,7 @@ app.layout = html.Div(children=[
     ], style={'padding': '2rem', 'flex': 1})
 
 
+
 @app.callback(
     Output('container-button-basic', 'children'),
     Input('submit-val', 'n_clicks'),
@@ -31,9 +32,12 @@ app.layout = html.Div(children=[
 )
     
 def update_output(n_clicks, value):
-    return 'La valeur entrée est : "{}"'.format(
-        value
-    )
+    if value is not None:        
+        nb_contain_word,nb_nocontain_word = pr.main(value)
+        return (html.P('{} documents contiennent le mot {}'.format(nb_contain_word,value)),
+                html.Br(),
+                '{} documents ne contiennent pas le mot {}'.format(nb_nocontain_word,value))
+          
 
 if __name__ == '__main__':
     app.run_server(debug=False)
