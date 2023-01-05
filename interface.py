@@ -11,7 +11,7 @@ cc = load_data('corpus.csv')
        
 app = Dash(__name__)
 
-    
+#genère le tableau des documents obtenu avec le mot saisie    
 def generate_table(df):
     return (
            dash_table.DataTable(
@@ -32,12 +32,14 @@ def generate_table(df):
             'padding': '1rem',
             "text-align": "center"
         },
+        page_size=7,
         tooltip_delay=0,
         tooltip_duration=None
         )
     )
 
 
+# permet l'affichage de tous les elements
 app.title = "Football WORD"
 app.layout = html.Div(children=[
     # Titre
@@ -55,24 +57,27 @@ app.layout = html.Div(children=[
         
         ),
         
-        html.Div('Quentin MONTALAND & Manuel RAMANITRA M1 Informatique ',style={"font-weight":"bold","position":'relative', "bottom":0, "left":0, "right":0, "padding": "1rem", "fontSize": "16px", "color": "black", "text-align": "center"})
+        html.Div('Quentin MONTALAND & Manuel RAMANITRA M1 Informatique ',style={"font-weight":"bold","position":'relative', "bottom":0, 
+                                                                                "left":0, "right":0, "padding": "1rem", "fontSize": "16px", 
+                                                                                "color": "black", "text-align": "center"})
     
     ], style={'padding': '2rem', 'flex': 1},
     )
 
+# permet l'actualisation du mot
 @app.callback(
     Output('container-button-basic', 'children'),
     Input('submit-val', 'n_clicks'),
     State('search', 'value')
 )
-    
+
+#gère la mise à jour des mots saisies + affiche les elements après la barre de recherche    
 def update_output(n_clicks, value):
     value = value.split(" ")
     value = list(filter(any, value))
     
     if len(value) > 0 :  # value is not None          
         nb_contain_word,nb_nocontain_word, contain_value = pr.main(value)
-        print(contain_value)
         value = " ou ".join(value)
         return (html.Div('{} documents contiennent le mot {}'.format(nb_contain_word,value)),
                 html.Br(),
