@@ -28,7 +28,7 @@ def showDictStruct(d):
     recursivePrint(d, 1)
 
 def load_data(path_file :str):
-     return pd.read_csv('corpus.csv',sep=';')
+     return pd.read_csv(path_file,sep=';')
  
      
 def crea_tf_tfxidf(df):
@@ -108,7 +108,7 @@ def traitement_corpus(value_input):
     
     corpus = load_data('corpus.csv') 
     contain_value,no_contain_value = decoupage(corpus, value_input)
-    return len(contain_value),len(no_contain_value)
+    return len(contain_value),len(no_contain_value),contain_value.iloc[:,:-1]
     
     # data_reddit = corpus[corpus['Nature']=='Reddit']
     # data_arxiv = corpus[corpus['Nature']=='ArXiv']
@@ -302,5 +302,13 @@ def main(value_input):
     
    
     # Traitement corpus 
-    x,y = traitement_corpus(value_input)         
-    return x,y
+    # return : 
+    # nb mot dans le corpus qui contient 
+    # nb mot dans le corpus qui ne contient pas 
+    # list des mots avec les + gros TFIDF et TFIDF
+    # tableau doc qui contient
+    x,y,contain_value = traitement_corpus(value_input)         
+    return x,y,contain_value
+
+
+main(['fifa'])
