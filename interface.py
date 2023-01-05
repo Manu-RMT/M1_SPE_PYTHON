@@ -1,4 +1,5 @@
 from dash import Dash, dash_table,html,dcc,Input, Output, State
+import dash_bootstrap_components as dbc
 import pandas as pd
 import Projet as pr 
 
@@ -32,8 +33,13 @@ app.layout = html.Div(children=[
 )
     
 def update_output(n_clicks, value):
-    if value is not None:        
+    value = value.split(' ')
+    value = list(filter(any, value))
+    
+    if len(value) > 0 :  # value is not None          
         nb_contain_word,nb_nocontain_word = pr.main(value)
+
+        value = " ou ".join(value)
         return (html.P('{} documents contiennent le mot {}'.format(nb_contain_word,value)),
                 html.Br(),
                 '{} documents ne contiennent pas le mot {}'.format(nb_nocontain_word,value))

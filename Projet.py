@@ -93,7 +93,7 @@ def decoupage(df,value):
         tokens = [word for word in words if len(word)>1] #Suppression des mots constitués de 1 seul caractère 
         df['Words'][i] = tokens #On range les mots dans une colonne du dataframe
         
-        if df['Words'][i].count(value.lower())>0: #Si le vocabulaire du document contient le mot 'value'
+        if bool(set(df['Words'][i]) & set(value)): #Si le vocabulaire du document et la liste value partage au moins un élément
             data_ct.append(df.iloc[i]) #On insère le document dans data_ct
         else:
             data_nct.append(df.iloc[i]) #On insère le document dans data_nct
