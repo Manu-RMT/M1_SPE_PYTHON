@@ -1,6 +1,6 @@
 import datetime
 
-# =============== 2.1 : La classe Document ===============
+# =============== La classe Document ===============
 class Document:
     # Initialisation des variables de la classe
     def __init__(self,nature ="", titre="", auteur="", date="", url="", texte=""):
@@ -11,7 +11,7 @@ class Document:
         self.url = url
         self.texte = texte
 
-# =============== 2.2 : REPRESENTATIONS ===============
+
     # Fonction qui renvoie le texte Ã  afficher lorsqu'on tape repr(classe)
     def __repr__(self):
         return f"Titre : {self.titre}\tAuteur : {self.auteur}\tDate : {self.date}\tURL : {self.url}\tTexte : {self.texte}\t"
@@ -22,21 +22,24 @@ class Document:
     
 
 
-# =============== 2.4 : La classe Author ===============
+# ===============  La classe Author ===============
 class Author:
     def __init__(self, name):
         self.name = name
         self.ndoc = 0
         self.production = []
-# =============== 2.5 : ADD ===============
+    
+    # ajout d'un document dans la liste de production d'un auteur + gere le nombre    
     def add(self, production):
         self.ndoc += 1
         self.production.append(production)
+    
+    # Fonction qui renvoie le texte Ã  afficher lorsqu'on tape str(classe)
     def __str__(self):
         return f"Auteur : {self.name}\t# productions : {self.ndoc}"
     
     
-# ============== Héritage de document
+# ============== Héritage de document  ===============
 class RedditDocument(Document):
     def __init__(self, titre: str, auteur: str, date: datetime, url: str, texte: str, type_source: str,
                  nb_commentaire: int):
