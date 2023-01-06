@@ -41,10 +41,10 @@ app.layout = html.Div(children=[
     html.Br(),
     html.Div([
         html.Label('Barre de recherche'),
-        dcc.Input(id="search", type="text", placeholder="Saisir un mot/des mot(s)-clé(s)", style= {'margin': '2rem','width':"22%"}),
+        dcc.Input(id="search", type="text", placeholder="Saisir un/des mot(s)-clé(s)", style= {'margin': '2rem','width':"22%"}),
         html.Button('Rechercher', id='submit-val',n_clicks=0),
         html.Div(id='container-button-basic',
-                 children='Entrez une valeur et appuyer sur SUBMIT',style={'padding':'1rem 0rem'})     
+                 children='Entrez une valeur et appuyer sur Rechercher',style={'padding':'1rem 0rem'})     
         ]
         ,style = {"fontSize": "20px",'text-align':'center'}
         
