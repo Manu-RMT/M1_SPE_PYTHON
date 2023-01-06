@@ -40,10 +40,10 @@ def generate_table(df):
 
 
 # permet l'affichage de tous les elements
-app.title = "Football WORD"
+app.title = "Football Documents"
 app.layout = html.Div(children=[
     # Titre
-    html.H1(children="Interface Python", style={"fontSize": "48px", "color": "red", "text-align": "center"}),
+    html.H1(children="Exploration de documents de football", style={"fontSize": "48px", "color": "red", "text-align": "center"}),
     
     html.Br(),
     html.Div([
@@ -77,14 +77,20 @@ def update_output(n_clicks, value):
     value = list(filter(any, value))
     
     if len(value) > 0 :  # value is not None          
-        nb_contain_word,nb_nocontain_word, contain_value = pr.main(value)
+        nb_contain_word, nb_nocontain_word, contain_value, taille_vocab, top20_tf, top20_idf = pr.main(value)
         value = " ou ".join(value)
-        return (html.Div('{} documents contiennent le mot {}'.format(nb_contain_word,value)),
+        return (html.Div('{} documents contiennent le mot {} et constituent le corpus value '.format(nb_contain_word,value), 
+                         style={"text-align":"left"}),
                 html.Br(),
-                '{} documents ne contiennent pas le mot {}'.format(nb_nocontain_word,value),
+                html.Div('{} documents ne contiennent pas le mot {}  et constituent le corpus novalue'.format(nb_nocontain_word,value),
+                         style={"text-align":"left"}),
+                html.Br(),
+                html.Div(top20_tf,style={"margin-top":"2rem","text-align":"left"}),
+                html.Br(),
+                html.Div(top20_idf,style={"text-align":"left"}),
                 html.Br(),
                 html.Div(children=[
-                    html.H4(children='Tableau des documents ',style={"text-align":"left"}),
+                    html.H4(children='Tableau du corpus value ',style={"text-align":"left"}),
                     generate_table(contain_value)]),
               ) 
     
