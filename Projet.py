@@ -3,9 +3,7 @@ import urllib.request
 import xmltodict
 import datetime
 import pandas as pd
-import os.path
 import re
-import nltk
 import math
 from Classes import Document
 from Classes import Author

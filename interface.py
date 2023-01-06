@@ -1,5 +1,4 @@
 from dash import Dash, dash_table,html,dcc,Input, Output, State
-import pandas as pd
 import Projet as pr 
 
 # initialisation de DAah       
