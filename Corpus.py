@@ -11,7 +11,8 @@ class Corpus:
         self.id2doc = {}
         self.ndoc = 0
         self.naut = 0
-
+    
+    # ajout d'un document dans le corpus     
     def add(self, doc):
         if doc.auteur not in self.aut2id:
             self.naut += 1
@@ -21,12 +22,14 @@ class Corpus:
 
         self.ndoc += 1
         self.id2doc[self.ndoc] = doc
-        
+    
+    # tri du titre des documents
     def tri_alphabetique(self, n_docs=-1):
         docs = list(self.id2doc.values())
         docs = list(sorted(docs, key=lambda x: x.titre.lower()))
         return docs
-
+    
+    # affichage des documents
     def show(self, n_docs=-1, tri="abc"):
         docs = list(self.id2doc.values())
         if tri == "abc":  # Tri alphabÃ©tique
@@ -35,13 +38,15 @@ class Corpus:
             docs = list(sorted(docs, key=lambda x: x.date))[:n_docs]
 
         print("\n".join(list(map(repr, docs))))
-
+    
+    # representation des documents
     def __repr__(self):
         docs = list(self.id2doc.values())
         docs = list(sorted(docs, key=lambda x: x.titre.lower()))
 
         return "\n".join(list(map(str, docs)))
-
+    
+    # recupèration des champs d'un document
     def values_corpus(self):
         lst1 = []
         lst2 = []

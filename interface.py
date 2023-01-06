@@ -1,5 +1,4 @@
 from dash import Dash, dash_table,html,dcc,Input, Output, State
-import dash_bootstrap_components as dbc
 import pandas as pd
 import Projet as pr 
 
