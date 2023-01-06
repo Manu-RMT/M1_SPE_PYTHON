@@ -290,4 +290,4 @@ def main(value_input):
     return  x, y, contain_value, taille_vocab, top20_tf, top20_idf
 
 # test
-main(['foot'])
+# main(['foot'])
