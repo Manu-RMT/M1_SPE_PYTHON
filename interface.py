@@ -80,6 +80,8 @@ def update_output(n_clicks, value):
                 html.Div('{} documents ne contiennent pas le mot {}  et constituent le corpus novalue'.format(nb_nocontain_word,value),
                          style={"text-align":"left"}),
                 html.Br(),
+                html.Div(taille_vocab,style={"margin-top":"2rem","text-align":"left"}),
+                html.Br(),
                 html.Div(top20_tf,style={"margin-top":"2rem","text-align":"left"}),
                 html.Br(),
                 html.Div(top20_idf,style={"text-align":"left"}),
@@ -92,5 +94,5 @@ def update_output(n_clicks, value):
 
  # lance le serveur   
 if __name__ == '__main__':
-    app.run_server(debug=False)
+        app.run_server(debug=False)
     
