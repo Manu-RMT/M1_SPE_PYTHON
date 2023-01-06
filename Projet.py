@@ -154,7 +154,7 @@ def main(value_input):
                              user_agent='td3_python')
         
         # Requête
-        limit = 1000
+        limit = 500
         hot_posts = reddit.subreddit('football').hot(limit=limit)  # .top("all", limit=limit)#
         
         # Récupération du texte
