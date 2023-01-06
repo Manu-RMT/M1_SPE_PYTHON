@@ -62,7 +62,7 @@ class RedditDocument(Document):
 # Herite de document qui gere en plus les articles de co-auteurs
 class ArxivDocument(Document):
     def __init__(self, titre: str, auteur: str, date: datetime, url: str, texte: str, type_source: str,
-                 array_nom_auteur: list[str]):
+                 array_nom_auteur: list):
         Document.__init__(self, titre, auteur, date, url, texte, type_source)
         self.nom_co_auteur = array_nom_auteur
 

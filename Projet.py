@@ -15,7 +15,7 @@ from nltk.corpus import stopwords
 
 # lecture d'un CSV
 def load_data(path_file :str):
-     return pd.read_csv(path_file,sep=';')
+      return pd.read_csv(path_file,sep=';')
  
     
 # création des dictionnaires tf et tfidf qui associent les valeurs tf et tfidf à chacun des mots d'un corpus      
@@ -148,7 +148,7 @@ def main(value_input):
       
         # Identification
         reddit = praw.Reddit(client_id='5DDK45r5absaCcU6Cwh_KQ', client_secret='M-1Sons8RJU9EAQffSfpuvJXKIYzPQ',
-                             user_agent='td3_python')
+                              user_agent='td3_python')
         
       
         # Requête
@@ -289,5 +289,5 @@ def main(value_input):
     x,y,contain_value, taille_vocab, top20_tf, top20_idf = traitement_corpus(value_input)         
     return  x, y, contain_value, taille_vocab, top20_tf, top20_idf
 
-
+# test
 main(['foot'])

@@ -1,8 +1,6 @@
 dash
 datetime
-math
 nltk
 pandas
 praw
-re
 xmltodict
