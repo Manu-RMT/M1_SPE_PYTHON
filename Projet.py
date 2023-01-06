@@ -261,7 +261,6 @@ def main(value_input):
         for doc in collection:
             corpus.add(doc)
             
-        corpus_trie = corpus.tri_alphabetique()
                
         print("---------------- affichage du corpus -------------- \n")    
         print(corpus.__repr__())

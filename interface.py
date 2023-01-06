@@ -26,7 +26,7 @@ def generate_table(df):
             'padding': '1rem',
             "text-align": "center"
         },
-        page_size=7,
+        page_size=20,
         tooltip_delay=0,
         tooltip_duration=None
         )
@@ -42,8 +42,8 @@ app.layout = html.Div(children=[
     html.Br(),
     html.Div([
         html.Label('Barre de recherche'),
-        dcc.Input(id="search", type="text", placeholder="Saisissez un mot", style= {'margin': '2rem'}),
-        html.Button('Submit', id='submit-val',n_clicks=0),
+        dcc.Input(id="search", type="text", placeholder="Saisir un mot/des mot(s)-clé(s)", style= {'margin': '2rem','width':"22%"}),
+        html.Button('Rechercher', id='submit-val',n_clicks=0),
         html.Div(id='container-button-basic',
                  children='Entrez une valeur et appuyer sur SUBMIT',style={'padding':'1rem 0rem'})     
         ]
@@ -80,7 +80,7 @@ def update_output(n_clicks, value):
                 html.Div('{} documents ne contiennent pas le mot {}  et constituent le corpus novalue'.format(nb_nocontain_word,value),
                          style={"text-align":"left"}),
                 html.Br(),
-                html.Div(taille_vocab,style={"margin-top":"2rem","text-align":"left"}),
+                html.Div(taille_vocab,style={"text-align":"left"}),
                 html.Br(),
                 html.Div(top20_tf,style={"margin-top":"2rem","text-align":"left"}),
                 html.Br(),
