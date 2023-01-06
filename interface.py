@@ -67,6 +67,7 @@ app.layout = html.Div(children=[
 
 #gère la mise à jour des mots saisies + affiche les elements après la barre de recherche    
 def update_output(n_clicks, value):
+    value = value.lower()
     value = value.split(" ") # séparation des mots clés
     value = list(filter(any, value)) # supprime les espaces inutiles
     

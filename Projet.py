@@ -13,12 +13,14 @@ from Corpus import Corpus
 from os import path
 from nltk.corpus import stopwords
 
-
+# lecture d'un CSV
 def load_data(path_file :str):
      return pd.read_csv(path_file,sep=';')
  
-     
+    
+# création des dictionnaires tf et tfidf qui associent les valeurs tf et tfidf à chacun des mots d'un corpus      
 def crea_tf_tfxidf(df):
+    
     nb_docs = len(df)
     tf={} #Dictionnaire de stockage des nombres d'apparition (articles reddit)
     doc_apparition = {} #Dictionnaire de stockage du nombre de documents dans lequels les mots apparaissent (articles reddit)
@@ -51,6 +53,8 @@ def crea_tf_tfxidf(df):
     
     return tf, tfxidf
 
+
+# tri d'un dictonnaire à partir de sa valeur et recupèration que des n premier elements
 def sort_tfxidf(dictionnaire, nb_words, desc):
     compteur = 0
     words = []
@@ -60,28 +64,15 @@ def sort_tfxidf(dictionnaire, nb_words, desc):
         # print ("%s: %s" % (word, value))
         words.append(word)
         tfxidf.append(value)
-        if compteur >= nb_words:
+        if compteur >= nb_words: # si le compteur dépasse le nb de mots à récupérer
             break
     return words, tfxidf
 
 
+# création des textes à afficher sur l'interface 
 def tfxidf(df_contain,df_nocontain):
     tf_value,tfxidf_value = crea_tf_tfxidf(df_contain)
-    # tf_novalue,tfxidf_novalue = crea_tf_tfxidf(df_nocontain) #Calcul des td, tfxidf de reddit
-    
-    
-    # top10_idf_novalue.append([0]*len(top10_idf_arxiv[0])) #Initialisation d'une nouvelle colonne
-    
-    # for i, mot in enumerate(top10_idf_arxiv[0]): #Boucle sur les mots du top10 arxiv
-    #     if mot in tfxidf_reddit.keys(): #Si présent dans le vocabulaire de reddit
-    #         top10_idf_arxiv[-1][i] = tfxidf_reddit[mot] #On note le tfxidf de reddit dans la colonne créée avant la boucle
-    
-    # print(top10_idf_arxiv)
-    # top10_idf_arxiv[2] = [b - a for b, a in zip(top10_idf_arxiv[1],top10_idf_arxiv[2])]
-    
-    # import matplotlib.pyplot as plt
-    # plt.plot([1,2,3,4,5,6,7,8,9,10], top10_idf_arxiv[2])
-    
+        
     """Comparaison taille de vocab"""
     taille_vocab =  f"Taille du vocabulaire des documents contenant un des mots-clés : {str(len(tf_value))} mots"
     
@@ -94,19 +85,15 @@ def tfxidf(df_contain,df_nocontain):
     top20_idf_value = list(sort_tfxidf(tfxidf_value,20,True)) #Récupération du top20 des tfxidf de arxiv
     top20_idf = f" mots avec le plus grand tfxidf : {top20_idf_value[0]}"
    
-        
-    """Comptage des mots appartenants aux vocabulaire des 2 corpus (value et novalue) """
-    # nb_voc_commun = 0
-    # for word in tf_value.keys():
-    #     if word in tf_novalue.keys():
-    #         nb_voc_commun += 1
-    
-    # nb_voc_commun = f"Nombre de mot commun au deux corpus (value et novalue) : {nb_voc_commun}"
     
     return taille_vocab,top20_tf,top20_idf
     
 
+# découpage d'un corpus en deux à partir de mot(s)-clé(s)
+# data_ct_value = documents avec au moins un mot-clé
+# data_nct_value = documents avec 0 mot-clé
 def decoupage(df,value):
+    
     df['Words'] = df.iloc[:,0].copy()
     data_ct=[] #Liste qui va contenir les documents contenant le mot 'value'
     data_nct=[] #Liste qui va contenir les documents qui ne contiennent pas le mot 'value'
@@ -133,6 +120,14 @@ def decoupage(df,value):
             
     return data_ct_value, data_nct_value
 
+# récupération variables pour l'interface
+# return : 
+# nombre de documents qui contient le(s) mot(s) saisit
+# nombre de documents qui contient le(s) mot(s) saisit
+# recupèration du corpus qui contient au moins 1 mot-clé sans les tokens qui ont été ajoutés
+# nombre de mots différents dans le corpus    
+# 20 mots avec le plus grand tf
+# 20 mots avec le plus grand tfxidf
 def traitement_corpus(value_input): 
     corpus = load_data('corpus.csv') 
     contain_value,no_contain_value = decoupage(corpus, value_input)
@@ -146,14 +141,19 @@ def main(value_input):
     # si le corpus n'existe pas encore on le charge dans le CSV
     file = path.exists('corpus.csv')
     if not file :
-    
+        # Paramètres
+        query_terms = "football"
+        
+        # =============== Reddit ===============
+      
         # Identification
         reddit = praw.Reddit(client_id='5DDK45r5absaCcU6Cwh_KQ', client_secret='M-1Sons8RJU9EAQffSfpuvJXKIYzPQ',
                              user_agent='td3_python')
         
+      
         # Requête
         limit = 500
-        hot_posts = reddit.subreddit('football').hot(limit=limit)  # .top("all", limit=limit)#
+        hot_posts = reddit.subreddit(query_terms).hot(limit=limit)  # .top("all", limit=limit)#
         
         # Récupération du texte
         docs = []
@@ -166,16 +166,16 @@ def main(value_input):
                     pass
                     print(k, ":", v)    
         
-            if post.selftext == "":  
+            if post.selftext == "": # ignore les documents sans texte 
                 continue
             
             docs.append(post.selftext.replace("\n", " "))
             docs_bruts.append(("Reddit", post))
         
-        # =============== 1.2 : ArXiv ===============
         
-        # Paramètres
-        query_terms = ["football"]
+        
+        # =============== ArXiv ===============
+        
         max_results = len(docs) # recupère autant d'arxiv que de reddit
         
         # Requête
@@ -193,17 +193,17 @@ def main(value_input):
             docs_bruts.append(("ArXiv", entry))
             # showDictStruct(entry)
         
-        # =============== 1.3 : Exploitation ===============
+        # =============== Exploitation ===============
         print(f"# docs avec doublons : {len(docs)}")
         docs = list(set(docs))
         print(f"# docs sans doublons : {len(docs)}")
         
-        for i, doc in enumerate(docs):
-            print(f"Document {i}\t# caractères : {len(doc)}\t# mots : {len(doc.split(' '))}\t# phrases : {len(doc.split('.'))}")
-            if len(doc) < 100:
-                docs.remove(doc)
+        # for i, doc in enumerate(docs):
+        #     print(f"Document {i}\t# caractères : {len(doc)}\t# mots : {len(doc.split(' '))}\t# phrases : {len(doc.split('.'))}")
+        #     if len(doc) < 100:
+        #         docs.remove(doc)
         
-        longueChaineDeCaracteres = " ".join(docs)
+        # longueChaineDeCaracteres = " ".join(docs)
         
         
         collection = []
@@ -253,7 +253,7 @@ def main(value_input):
         
             authors[aut2id[doc.auteur]].add(doc.texte)
             
-        # =============== 2.7, 2.8 : CORPUS ===============
+        # =============== CORPUS ===============
         
         corpus = Corpus("Mon corpus")
         
@@ -266,7 +266,8 @@ def main(value_input):
         print("---------------- affichage du corpus -------------- \n")    
         print(corpus.__repr__())
         print("---------------- x -------------- \n")
-        # =============== 2.9 : SAUVEGARDE ===============
+       
+        # =============== SAUVEGARDE DU CORPUS ===============
         
         nature=corpus.values_corpus()[0]
         titre=corpus.values_corpus()[1]
@@ -283,12 +284,8 @@ def main(value_input):
         print("\n Le fichier contenant le corpus existe deja, pas de sauvegarde de document \n")
     
    
-    # Traitement corpus 
-    # return : 
-    # nb mot dans le corpus qui contient 
-    # nb mot dans le corpus qui ne contient pas 
-    # list des mots avec les + gros TFIDF et TFIDF
-    # tableau doc qui contient
+    # =============== TRAITEMENT CORPUS ===============
+    
     x,y,contain_value, taille_vocab, top20_tf, top20_idf = traitement_corpus(value_input)         
     return  x, y, contain_value, taille_vocab, top20_tf, top20_idf
 
