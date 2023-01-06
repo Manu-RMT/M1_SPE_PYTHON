@@ -2,10 +2,8 @@ import praw
 import urllib.request
 import xmltodict
 import datetime
-import pickle
 import pandas as pd
 import os.path
-import csv
 import re
 import nltk
 import math
