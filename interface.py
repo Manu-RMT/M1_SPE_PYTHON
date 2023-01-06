@@ -2,12 +2,7 @@ from dash import Dash, dash_table,html,dcc,Input, Output, State
 import pandas as pd
 import Projet as pr 
 
-
-def load_data(path_file :str):
-     return pd.read_csv(path_file,sep=';')
- 
-cc = load_data('corpus.csv')
-       
+# initialisation de DAah       
 app = Dash(__name__)
 
 #genère le tableau des documents obtenu avec le mot saisie    
@@ -72,8 +67,8 @@ app.layout = html.Div(children=[
 
 #gère la mise à jour des mots saisies + affiche les elements après la barre de recherche    
 def update_output(n_clicks, value):
-    value = value.split(" ")
-    value = list(filter(any, value))
+    value = value.split(" ") # séparation des mots clés
+    value = list(filter(any, value)) # supprime les espaces inutiles
     
     if len(value) > 0 :  # value is not None          
         nb_contain_word, nb_nocontain_word, contain_value, taille_vocab, top20_tf, top20_idf = pr.main(value)
@@ -94,7 +89,7 @@ def update_output(n_clicks, value):
               ) 
     
 
-    
+ # lance le serveur   
 if __name__ == '__main__':
     app.run_server(debug=False)
     
